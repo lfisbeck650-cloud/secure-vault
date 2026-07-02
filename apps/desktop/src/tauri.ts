@@ -65,3 +65,7 @@ export async function exportVault(): Promise<string> {
 export async function importVault(data: string): Promise<void> {
   await invoke('import_vault', { data });
 }
+
+export async function getVaultPath(): Promise<string> {
+  return await invoke('get_vault_path');
+}

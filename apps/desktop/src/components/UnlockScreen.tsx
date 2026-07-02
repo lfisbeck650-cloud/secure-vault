@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { createVault, unlockVault, vaultExists } from '../tauri';
+import { createVault, unlockVault, vaultExists, getVaultPath } from '../tauri';
 
 interface Props {
   onUnlocked: (path: string) => void;
@@ -12,10 +12,13 @@ export function UnlockScreen({ onUnlocked }: Props) {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [exists, setExists] = useState<boolean | null>(null);
-  const vaultPath = 'vault.json';
+  const [vaultPath, setVaultPath] = useState('');
 
   useEffect(() => {
-    vaultExists(vaultPath).then(setExists).catch(() => setExists(false));
+    getVaultPath().then((path) => {
+      setVaultPath(path);
+      return vaultExists(path);
+    }).then(setExists).catch(() => setExists(false));
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {

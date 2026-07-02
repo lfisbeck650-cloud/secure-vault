@@ -1,11 +1,18 @@
 use std::sync::Mutex;
-use tauri::State;
+use tauri::{Manager, State};
 
 use vault_core::api::VaultApi;
 use storage::models::Entry;
 use utils::password_generator::PasswordOptions;
 
 pub struct VaultState(pub Mutex<Option<VaultApi>>);
+
+#[tauri::command]
+fn get_vault_path(app: tauri::AppHandle) -> Result<String, String> {
+    let data_dir = app.path().app_data_dir().map_err(|e| format!("Failed to get data dir: {}", e))?;
+    std::fs::create_dir_all(&data_dir).map_err(|e| format!("Failed to create data dir: {}", e))?;
+    Ok(data_dir.join("vault.json").to_string_lossy().to_string())
+}
 
 #[tauri::command]
 fn create_vault(state: State<VaultState>, path: String, master_password: String) -> Result<(), String> {
@@ -130,6 +137,7 @@ pub fn run() {
         .plugin(tauri_plugin_shell::init())
         .manage(VaultState(Mutex::new(None)))
         .invoke_handler(tauri::generate_handler![
+            get_vault_path,
             create_vault,
             unlock_vault,
             lock_vault,
