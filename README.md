@@ -1,50 +1,82 @@
 # Secure Vault
 
-A local, zero-knowledge password manager built with Rust and Tauri.
+A local, zero-knowledge password manager. Open source, encrypted, no cloud required.
 
-**Zero-knowledge** — No one but you can decrypt your data. Everything is encrypted with AES-256-GCM before touching disk.
+**Zero-knowledge** — No one but you can decrypt your data. Everything is encrypted with AES-256-GCM before touching disk. Your master password never leaves your device.
+
+## Features
+
+- Encrypted local vault (AES-256-GCM + Argon2id)
+- Master password unlock
+- Add, edit, delete, search entries
+- Password generator (configurable length & character types)
+- Copy username / password to clipboard
+- Export / import encrypted vault
+- Dark-first UI
+- Written in Rust + Tauri + React
+
+## Screens
+
+| Screen | Description |
+|--------|-------------|
+| **Unlock** | Create or unlock vault with master password |
+| **Main** | Sidebar with search, entry list, detail panel |
+| **Password Generator** | Configurable password generation modal |
+| **Settings** | Export / Import vault |
 
 ## Architecture
 
 ```
-apps/desktop/    → Tauri desktop app (React + TypeScript)
+apps/desktop/    → Tauri desktop app (React + TypeScript UI)
 vault_core/      → Core business logic (Rust)
-security/        → Encryption, KDF, crypto (Rust)
-storage/         → Vault data model & file storage (Rust)
+security/        → Argon2id KDF, AES-256-GCM encryption (Rust)
+storage/         → Vault data model, file I/O, serialization (Rust)
 utils/           → Password generator (Rust)
 ```
 
 ## Security
 
-- **Key Derivation**: Argon2id (19456 KiB memory, 2 iterations)
-- **Encryption**: AES-256-GCM with random nonces
+- **Key Derivation**: Argon2id (19456 KiB memory, 2 iterations, 1 parallelism)
+- **Encryption**: AES-256-GCM with random 96-bit nonces
 - **Entropy**: OS secure random number generator
-- **Memory**: Sensitive data zeroed on drop
-- **Storage**: Only encrypted blobs on disk
+- **Memory**: Sensitive data zeroed on drop (`Zeroizing`)
+- **Storage**: Only encrypted blobs on disk — no plaintext
 
-## Development
+## Quick Start
 
 ### Prerequisites
 
-- Rust 1.77+
-- Node.js 20+
-- Tauri system dependencies
+- [Rust](https://rustup.rs/) 1.77+
+- [Node.js](https://nodejs.org/) 20+
+- [Tauri system dependencies](https://v2.tauri.app/start/prerequisites/)
 
-### Build & Run
+### Run in development mode
 
 ```bash
-# Install frontend deps
-cd apps/desktop && npm install
-
-# Run in development mode
-cd apps/desktop && npx tauri dev
-
-# Build for production
-cd apps/desktop && npx tauri build
+cd apps/desktop
+npm install
+npx tauri dev
 ```
 
-### Tests
+### Build for production
+
+```bash
+cd apps/desktop
+npx tauri build
+```
+
+The installer binary will be in `apps/desktop/src-tauri/target/release/bundle/`.
+
+### Run tests
 
 ```bash
 cargo test
 ```
+
+## Download
+
+Pre-built binaries are available on the [Releases](https://github.com/lfisbeck650-cloud/secure-vault/releases) page.
+
+## License
+
+MIT
