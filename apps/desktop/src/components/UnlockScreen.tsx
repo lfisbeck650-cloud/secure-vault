@@ -1,46 +1,50 @@
 import { useState, useEffect } from 'react';
-import { createVault, unlockVault, vaultExists, getVaultPath } from '../tauri';
+import { createVault, unlockVault, vaultExists, getVaultPath, setUserName } from '../tauri';
 
 interface Props {
   onUnlocked: (path: string) => void;
 }
 
 export function UnlockScreen({ onUnlocked }: Props) {
-  const [mode, setMode] = useState<'unlock' | 'create'>('unlock');
+  const [step, setStep] = useState<'check' | 'welcome' | 'unlock'>('check');
+  const [vaultPath, setVaultPath] = useState('');
+  const [userName, setUserName_] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const [exists, setExists] = useState<boolean | null>(null);
-  const [vaultPath, setVaultPath] = useState('');
 
   useEffect(() => {
     getVaultPath().then((path) => {
       setVaultPath(path);
       return vaultExists(path);
-    }).then(setExists).catch(() => setExists(false));
+    }).then((exists) => {
+      if (exists) {
+        setStep('unlock');
+      } else {
+        setStep('welcome');
+      }
+    }).catch(() => {
+      setStep('welcome');
+    });
   }, []);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    if (password.length < 8) {
+      setError('Master password must be at least 8 characters');
+      return;
+    }
+    if (password !== confirmPassword) {
+      setError('Passwords do not match');
+      return;
+    }
     setLoading(true);
-
     try {
-      if (mode === 'create') {
-        if (password.length < 8) {
-          setError('Master password must be at least 8 characters');
-          setLoading(false);
-          return;
-        }
-        if (password !== confirmPassword) {
-          setError('Passwords do not match');
-          setLoading(false);
-          return;
-        }
-        await createVault(vaultPath, password);
-      } else {
-        await unlockVault(vaultPath, password);
+      await createVault(vaultPath, password);
+      if (userName.trim()) {
+        await setUserName(userName.trim());
       }
       onUnlocked(vaultPath);
     } catch (err: unknown) {
@@ -50,23 +54,81 @@ export function UnlockScreen({ onUnlocked }: Props) {
     }
   };
 
-  const toggleMode = () => {
-    setMode(mode === 'unlock' ? 'create' : 'unlock');
+  const handleUnlock = async (e: React.FormEvent) => {
+    e.preventDefault();
     setError('');
-    setPassword('');
-    setConfirmPassword('');
+    setLoading(true);
+    try {
+      await unlockVault(vaultPath, password);
+      onUnlocked(vaultPath);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : String(err));
+    } finally {
+      setLoading(false);
+    }
   };
 
-  if (exists === null) return null;
+  if (step === 'check') return null;
 
-  const isCreate = exists === false || mode === 'create';
+  if (step === 'welcome') {
+    return (
+      <div className="unlock-screen">
+        <div className="welcome-card">
+          <div className="welcome-icon">🔐</div>
+          <h1>Welcome to Secure Vault</h1>
+          <p className="welcome-subtitle">
+            Your local, zero-knowledge password manager.
+            Everything is encrypted before it touches your disk.
+          </p>
+
+          <form className="unlock-form" onSubmit={handleCreate}>
+            <div className="form-group">
+              <label>What should we call you?</label>
+              <input
+                placeholder="Your name"
+                value={userName}
+                onChange={(e) => setUserName_(e.target.value)}
+                autoFocus
+              />
+            </div>
+
+            <div className="form-group">
+              <label>Master password</label>
+              <input
+                type="password"
+                placeholder="At least 8 characters"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+            </div>
+
+            <div className="form-group">
+              <label>Confirm master password</label>
+              <input
+                type="password"
+                placeholder="Repeat your master password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+              />
+            </div>
+
+            {error && <div className="error">{error}</div>}
+
+            <button className="btn-primary" type="submit" disabled={loading}>
+              {loading ? 'Creating...' : 'Create My Vault'}
+            </button>
+          </form>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="unlock-screen">
       <h1>Secure Vault</h1>
-      <p>Open-source password manager</p>
+      <p>Enter your master password to unlock</p>
 
-      <form className="unlock-form" onSubmit={handleSubmit}>
+      <form className="unlock-form" onSubmit={handleUnlock}>
         <input
           type="password"
           placeholder="Master password"
@@ -75,25 +137,10 @@ export function UnlockScreen({ onUnlocked }: Props) {
           autoFocus
         />
 
-        {isCreate && (
-          <input
-            type="password"
-            placeholder="Confirm master password"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-          />
-        )}
-
         {error && <div className="error">{error}</div>}
 
         <button className="btn-primary" type="submit" disabled={loading}>
-          {loading ? '...' : isCreate ? 'Create Vault' : 'Unlock Vault'}
-        </button>
-
-        <button className="btn-ghost" type="button" onClick={toggleMode}>
-          {isCreate
-            ? 'I already have a vault'
-            : 'Create a new vault'}
+          {loading ? '...' : 'Unlock Vault'}
         </button>
       </form>
     </div>

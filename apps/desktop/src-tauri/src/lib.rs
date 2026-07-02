@@ -131,6 +131,20 @@ fn import_vault(state: State<VaultState>, data: String) -> Result<(), String> {
     api.import_vault(&data)
 }
 
+#[tauri::command]
+fn set_user_name(state: State<VaultState>, name: String) -> Result<(), String> {
+    let mut guard = state.0.lock().map_err(|e| format!("Lock error: {}", e))?;
+    let api = guard.as_mut().ok_or_else(|| "Vault not initialized".to_string())?;
+    api.set_user_name(&name)
+}
+
+#[tauri::command]
+fn get_user_name(state: State<VaultState>) -> Result<String, String> {
+    let guard = state.0.lock().map_err(|e| format!("Lock error: {}", e))?;
+    let api = guard.as_ref().ok_or_else(|| "Vault not initialized".to_string())?;
+    api.get_user_name()
+}
+
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_clipboard_manager::init())
@@ -138,6 +152,8 @@ pub fn run() {
         .manage(VaultState(Mutex::new(None)))
         .invoke_handler(tauri::generate_handler![
             get_vault_path,
+            set_user_name,
+            get_user_name,
             create_vault,
             unlock_vault,
             lock_vault,

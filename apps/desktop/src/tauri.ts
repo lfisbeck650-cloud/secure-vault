@@ -69,3 +69,11 @@ export async function importVault(data: string): Promise<void> {
 export async function getVaultPath(): Promise<string> {
   return await invoke('get_vault_path');
 }
+
+export async function setUserName(name: string): Promise<void> {
+  await invoke('set_user_name', { name });
+}
+
+export async function getUserName(): Promise<string> {
+  return await invoke('get_user_name');
+}

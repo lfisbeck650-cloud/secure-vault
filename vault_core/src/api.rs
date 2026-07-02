@@ -76,4 +76,12 @@ impl VaultApi {
     pub fn get_vault_data(&self) -> Result<VaultData, String> {
         self.service.get_vault_data()
     }
+
+    pub fn set_user_name(&mut self, name: &str) -> Result<(), String> {
+        self.service.set_user_name(name)
+    }
+
+    pub fn get_user_name(&self) -> Result<String, String> {
+        self.service.get_user_name()
+    }
 }

@@ -47,6 +47,7 @@ impl Entry {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct VaultData {
     pub entries: Vec<Entry>,
+    pub user_name: Option<String>,
     pub created_at: String,
     pub updated_at: String,
 }
@@ -56,9 +57,19 @@ impl VaultData {
         let now = Utc::now().to_rfc3339();
         Self {
             entries: Vec::new(),
+            user_name: None,
             created_at: now.clone(),
             updated_at: now,
         }
+    }
+
+    pub fn user_name(&self) -> &str {
+        self.user_name.as_deref().unwrap_or("User")
+    }
+
+    pub fn set_user_name(&mut self, name: String) {
+        self.user_name = Some(name);
+        self.updated_at = Utc::now().to_rfc3339();
     }
 }
 

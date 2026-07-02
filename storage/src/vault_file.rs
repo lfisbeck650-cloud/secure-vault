@@ -62,7 +62,7 @@ impl VaultFile {
         Ok(())
     }
 
-    pub fn load_with_password(&self, password: &str) -> Result<(Zeroizing<Vec<u8>>, Vec<u8>), String> {
+    pub fn load_with_password(&self, password: &str) -> Result<(Zeroizing<Vec<u8>>, Vec<u8>, String), String> {
         let json =
             std::fs::read_to_string(&self.path).map_err(|e| format!("Read failed: {}", e))?;
         let encrypted: EncryptedVault =
@@ -70,7 +70,7 @@ impl VaultFile {
 
         let key = derive_key(password, &encrypted.salt)?;
         let data = decrypt_from_string(&encrypted.ciphertext, &key)?;
-        Ok((data, key.to_vec()))
+        Ok((data, key.to_vec(), encrypted.salt))
     }
 
     pub fn delete(&self) -> Result<(), String> {

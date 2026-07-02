@@ -3,7 +3,7 @@ import { Sidebar } from './Sidebar';
 import { EntryList } from './EntryList';
 import { EntryDetail } from './EntryDetail';
 import { PasswordGenerator } from './PasswordGenerator';
-import { getEntries, searchEntries, addEntry, updateEntry, deleteEntry } from '../tauri';
+import { getEntries, searchEntries, addEntry, updateEntry, deleteEntry, getUserName } from '../tauri';
 import type { Entry } from '../types';
 
 interface Props {
@@ -17,6 +17,7 @@ export function MainLayout({ onLock, onOpenSettings }: Props) {
   const [query, setQuery] = useState('');
   const [showGenerator, setShowGenerator] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
+  const [userName, setUserName_] = useState('');
 
   const loadEntries = useCallback(async () => {
     try {
@@ -29,6 +30,7 @@ export function MainLayout({ onLock, onOpenSettings }: Props) {
 
   useEffect(() => {
     loadEntries();
+    getUserName().then(setUserName_).catch(() => {});
   }, [loadEntries]);
 
   const selected = entries.find((e) => e.id === selectedId) || null;
@@ -69,6 +71,7 @@ export function MainLayout({ onLock, onOpenSettings }: Props) {
         onAddClick={() => setShowAddModal(true)}
         onOpenSettings={onOpenSettings}
         onLock={onLock}
+        userName={userName}
       />
       <div className="content">
         <EntryList

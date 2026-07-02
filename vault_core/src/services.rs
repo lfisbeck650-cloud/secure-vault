@@ -2,7 +2,7 @@ use storage::models::{Entry, VaultData};
 use storage::serializer::{
     deserialize_vault, deserialize_vault_from_string, serialize_vault, serialize_vault_string,
 };
-use storage::vault_file::{EncryptedVault, VaultFile};
+use storage::vault_file::VaultFile;
 
 pub struct VaultService {
     vault_file: VaultFile,
@@ -46,17 +46,12 @@ impl VaultService {
         if !self.vault_file.exists() {
             return Err("Vault does not exist. Create it first.".to_string());
         }
-        let (decrypted, key) = self.vault_file.load_with_password(master_password)?;
+        let (decrypted, key, salt) = self.vault_file.load_with_password(master_password)?;
         let data: VaultData = deserialize_vault(&decrypted)?;
-
-        let json = std::fs::read_to_string(self.vault_file.path())
-            .map_err(|e| format!("Read failed: {}", e))?;
-        let encrypted: EncryptedVault =
-            serde_json::from_str(&json).map_err(|e| format!("Deserialization failed: {}", e))?;
 
         self.unlocked_data = Some(data);
         self.encryption_key = Some(key);
-        self.salt = Some(encrypted.salt);
+        self.salt = Some(salt);
         Ok(())
     }
 
@@ -208,5 +203,22 @@ impl VaultService {
             .as_ref()
             .ok_or_else(|| "Vault is locked".to_string())?;
         Ok(data.clone())
+    }
+
+    pub fn set_user_name(&mut self, name: &str) -> Result<(), String> {
+        let data = self
+            .unlocked_data
+            .as_mut()
+            .ok_or_else(|| "Vault is locked".to_string())?;
+        data.set_user_name(name.to_string());
+        self.save()
+    }
+
+    pub fn get_user_name(&self) -> Result<String, String> {
+        let data = self
+            .unlocked_data
+            .as_ref()
+            .ok_or_else(|| "Vault is locked".to_string())?;
+        Ok(data.user_name().to_string())
     }
 }

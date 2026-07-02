@@ -4,13 +4,15 @@ interface Props {
   onAddClick: () => void;
   onOpenSettings: () => void;
   onLock: () => void;
+  userName?: string;
 }
 
-export function Sidebar({ query, onQueryChange, onAddClick, onOpenSettings, onLock }: Props) {
+export function Sidebar({ query, onQueryChange, onAddClick, onOpenSettings, onLock, userName }: Props) {
   return (
     <div className="sidebar">
       <div className="sidebar-header">
         <h2>Secure Vault</h2>
+        {userName && <div className="sidebar-user">{userName}</div>}
       </div>
 
       <div className="sidebar-search">
