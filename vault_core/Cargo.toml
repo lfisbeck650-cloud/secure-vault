@@ -1,0 +1,14 @@
+[package]
+name = "vault_core"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+security = { path = "../security" }
+storage = { path = "../storage" }
+utils = { path = "../utils" }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+uuid = { version = "1", features = ["v4"] }
+chrono = { version = "0.4", features = ["serde"] }
+zeroize = "1"

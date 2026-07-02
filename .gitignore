@@ -1,0 +1,6 @@
+target/
+apps/desktop/dist/
+apps/desktop/node_modules/
+*.log
+.DS_Store
+vault.json
