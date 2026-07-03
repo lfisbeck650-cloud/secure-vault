@@ -1,9 +1,0 @@
-[Desktop Entry]
-Type=Application
-Name=Secure Vault
-Comment=A local zero-knowledge password manager
-Exec=secure-vault
-Icon=com.securevault.desktop
-Categories=Utility;
-Terminal=false
-StartupNotify=true

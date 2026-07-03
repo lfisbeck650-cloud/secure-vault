@@ -4,8 +4,3 @@ apps/desktop/node_modules/
 *.log
 .DS_Store
 vault.json
-.flatpak-builder/
-build-dir/
-repo/
-*.flatpak
-*.flatpakref
