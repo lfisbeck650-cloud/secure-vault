@@ -77,3 +77,7 @@ export async function setUserName(name: string): Promise<void> {
 export async function getUserName(): Promise<string> {
   return await invoke('get_user_name');
 }
+
+export async function clearClipboard(): Promise<void> {
+  await invoke('clear_clipboard');
+}

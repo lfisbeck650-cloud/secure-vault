@@ -1,34 +1,26 @@
 # Secure Vault
 
-
-A local, zero-knowledge password manager. Open source, encrypted, no cloud required.
+A modern, local zero-knowledge password manager. Open source, encrypted, no cloud required.
 
 **Zero-knowledge** — No one but you can decrypt your data. Everything is encrypted with AES-256-GCM before touching disk. Your master password never leaves your device.
 
 ## Features
 
-- Encrypted local vault (AES-256-GCM + Argon2id)
-- Master password unlock
-- Add, edit, delete, search entries
-- Password generator (configurable length & character types)
-- Copy username / password to clipboard
-- Export / import encrypted vault
-- Dark-first UI
-- Written in Rust + Tauri + React
-
-## Screens
-
-| Screen | Description |
-|--------|-------------|
-| **Unlock** | Create or unlock vault with master password |
-| **Main** | Sidebar with search, entry list, detail panel |
-| **Password Generator** | Configurable password generation modal |
-| **Settings** | Export / Import vault |
+- **Modern Glassmorphism UI** — Sleek dark/light theme with blur effects and smooth animations
+- **Encrypted local vault** — AES-256-GCM + Argon2id key derivation
+- **Master password unlock** — Create or unlock your vault securely
+- **Full CRUD** — Add, edit, delete, and search entries
+- **Password generator** — Configurable length & character types with strength indicator
+- **Clipboard auto-clear** — Copied passwords are cleared from clipboard after 15 seconds
+- **One-click copy** — Copy usernames, passwords, and URLs
+- **Dark / Light theme** — Toggle between themes, persisted across sessions
+- **Export / Import** — Encrypted vault backup and restore
+- **Auto-lock detection** — Automatically returns to unlock screen if vault is locked
 
 ## Architecture
 
 ```
-apps/desktop/    → Tauri desktop app (React + TypeScript UI)
+apps/desktop/    → Tauri desktop app (React + TypeScript + Tailwind CSS)
 vault_core/      → Core business logic (Rust)
 security/        → Argon2id KDF, AES-256-GCM encryption (Rust)
 storage/         → Vault data model, file I/O, serialization (Rust)

@@ -1,5 +1,6 @@
 use std::sync::Mutex;
 use tauri::{Manager, State};
+use tauri_plugin_clipboard_manager::ClipboardExt;
 
 use vault_core::api::VaultApi;
 use storage::models::Entry;
@@ -145,6 +146,13 @@ fn get_user_name(state: State<VaultState>) -> Result<String, String> {
     api.get_user_name()
 }
 
+#[tauri::command]
+fn clear_clipboard(app: tauri::AppHandle) -> Result<(), String> {
+    app.clipboard()
+        .write_text(String::new())
+        .map_err(|e| format!("Clipboard error: {}", e))
+}
+
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_clipboard_manager::init())
@@ -167,6 +175,7 @@ pub fn run() {
             generate_password,
             export_vault,
             import_vault,
+            clear_clipboard,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

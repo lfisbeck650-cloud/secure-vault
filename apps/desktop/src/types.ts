@@ -16,3 +16,4 @@ export interface VaultData {
 }
 
 export type Screen = 'unlock' | 'main' | 'settings';
+export type Theme = 'dark' | 'light';

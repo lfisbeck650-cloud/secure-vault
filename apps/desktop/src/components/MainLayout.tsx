@@ -4,14 +4,16 @@ import { EntryList } from './EntryList';
 import { EntryDetail } from './EntryDetail';
 import { PasswordGenerator } from './PasswordGenerator';
 import { getEntries, searchEntries, addEntry, updateEntry, deleteEntry, getUserName } from '../tauri';
-import type { Entry } from '../types';
+import type { Entry, Theme } from '../types';
 
 interface Props {
   onLock: () => void;
   onOpenSettings: () => void;
+  theme: Theme;
+  onToggleTheme: () => void;
 }
 
-export function MainLayout({ onLock, onOpenSettings }: Props) {
+export function MainLayout({ onLock, onOpenSettings, theme, onToggleTheme }: Props) {
   const [entries, setEntries] = useState<Entry[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [query, setQuery] = useState('');
@@ -64,7 +66,7 @@ export function MainLayout({ onLock, onOpenSettings }: Props) {
   };
 
   return (
-    <div className="main-layout">
+    <div className="flex h-screen bg-[var(--color-vault-dark)] overflow-hidden">
       <Sidebar
         query={query}
         onQueryChange={setQuery}
@@ -72,8 +74,11 @@ export function MainLayout({ onLock, onOpenSettings }: Props) {
         onOpenSettings={onOpenSettings}
         onLock={onLock}
         userName={userName}
+        theme={theme}
+        onToggleTheme={onToggleTheme}
+        entryCount={entries.length}
       />
-      <div className="content">
+      <div className="flex flex-1 min-w-0">
         <EntryList
           entries={entries}
           selectedId={selectedId}
@@ -120,28 +125,35 @@ function AddEntryModal({
   };
 
   return (
-    <div className="modal-overlay" onClick={onCancel}>
-      <div className="modal" onClick={(e) => e.stopPropagation()}>
-        <h3>Add Entry</h3>
-        <form onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label>Title</label>
-            <input value={title} onChange={(e) => setTitle(e.target.value)} autoFocus />
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-fade-in" onClick={onCancel}>
+      <div className="glass rounded-2xl p-6 w-full max-w-sm mx-4 animate-scale-in" onClick={(e) => e.stopPropagation()}>
+        <div className="flex items-center gap-3 mb-5">
+          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-vault-accent to-vault-accent-light flex items-center justify-center">
+            <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
           </div>
-          <div className="form-group">
-            <label>Username</label>
-            <input value={username} onChange={(e) => setUsername(e.target.value)} />
+          <h3 className="text-lg font-bold text-vault-text">Add Entry</h3>
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="block text-xs font-medium text-vault-text-secondary mb-1.5 tracking-wide">TITLE</label>
+            <input className="input-modern w-full rounded-xl px-4 py-2.5 text-sm" value={title} onChange={(e) => setTitle(e.target.value)} autoFocus />
           </div>
-          <div className="form-group">
-            <label>Password</label>
-            <input value={password} onChange={(e) => setPassword(e.target.value)} />
+          <div>
+            <label className="block text-xs font-medium text-vault-text-secondary mb-1.5 tracking-wide">USERNAME</label>
+            <input className="input-modern w-full rounded-xl px-4 py-2.5 text-sm" value={username} onChange={(e) => setUsername(e.target.value)} />
           </div>
-          <div className="modal-actions">
-            <button className="btn-secondary" type="button" onClick={onCancel}>
+          <div>
+            <label className="block text-xs font-medium text-vault-text-secondary mb-1.5 tracking-wide">PASSWORD</label>
+            <input className="input-modern w-full rounded-xl px-4 py-2.5 text-sm" value={password} onChange={(e) => setPassword(e.target.value)} />
+          </div>
+
+          <div className="flex gap-2 pt-2">
+            <button type="button" onClick={onCancel} className="btn-modern btn-secondary-modern rounded-xl flex-1 py-2.5 text-sm font-medium">
               Cancel
             </button>
-            <button className="btn-primary" type="submit">
-              Save
+            <button type="submit" className="btn-modern btn-primary-modern rounded-xl flex-1 py-2.5 text-sm font-medium">
+              Save Entry
             </button>
           </div>
         </form>
