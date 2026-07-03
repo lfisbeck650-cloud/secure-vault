@@ -68,7 +68,7 @@ cargo test
 
 ## Download
 
-Pre-built binaries are available on the [Releases](https://github.com/lfisbeck650-cloud/secure-vault/releases) page.
+Pre-built binaries are available on the [Releases](https://github.com/lfisbeck650-cloud/secure-vault/releases) page. Linux packages: `.deb`, `.rpm`, and `.AppImage`.
 
 ## License
 
