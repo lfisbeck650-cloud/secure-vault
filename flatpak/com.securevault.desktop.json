@@ -7,9 +7,13 @@
   "finish-args": [
     "--socket=wayland",
     "--socket=fallback-x11",
+    "--socket=session-bus",
     "--share=ipc",
     "--device=dri",
     "--filesystem=home",
+    "--talk-name=org.freedesktop.portal.*",
+    "--talk-name=org.kde.StatusNotifierWatcher",
+    "--talk-name=com.canonical.indicator.appmenu",
     "--env=GTK_THEME=Adwaita"
   ],
   "modules": [
