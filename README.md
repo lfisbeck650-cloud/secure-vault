@@ -1,5 +1,6 @@
 # Secure Vault
 
+
 A local, zero-knowledge password manager. Open source, encrypted, no cloud required.
 
 **Zero-knowledge** — No one but you can decrypt your data. Everything is encrypted with AES-256-GCM before touching disk. Your master password never leaves your device.
